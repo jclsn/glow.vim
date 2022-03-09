@@ -7,6 +7,15 @@ command Glow call OpenGlow()
 
 function! OpenGlow()
 
+
+	let glowFound = system('which glow')
+	if glowFound[5:13] == 'not found'
+		echohl WarningMsg
+		echo 'glow is not installed'
+		echohl None
+		return
+	endif
+
     let filepath = @%				" Get the file path
     let filename = expand('%:t')    " Get the file name
 	let extension = expand('%:e')	" Get the file extension
@@ -46,4 +55,5 @@ function! OpenGlow()
 	call popup_show(winid)
 
 endfunction
+
 
