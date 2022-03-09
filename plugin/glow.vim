@@ -6,7 +6,13 @@
 command Glow call OpenGlow()
 
 function! OpenGlow()
-	let extension = expand('%:e')
+
+    let filepath = @%				" Get the file path
+    let filename = expand('%:t')    " Get the file name
+	let extension = expand('%:e')	" Get the file extension
+
+
+	" Display a warning message if the current file is not of type .md
 
 	if extension != 'md'
 		echohl WarningMsg
@@ -14,17 +20,30 @@ function! OpenGlow()
 		echohl None
 		return
 	endif
-    let filepath = @%
-    let filename = expand('%:t')
-	let buf = term_start(['glow', filepath], #{hidden: 1})
-	let winid = popup_create(buf, #{hidden: 1, minwidth: 120, minheight: 70})
 
-	call popup_setoptions(winid, #{title: ' ' . filename . ' '  ,
-				\		  border: [1,1,1,1],
-				\		  padding: [1,1,1,1],
-				\		  cursorline: 0}
-				\		  )
+
+	" Open a hidden terminal buffer an run glow in it
+
+	let buf = term_start( ['glow', filepath], #{hidden: 1} )
+
+
+	" Create a popup to display the terminal buffer in
+
+	let winid = popup_create( buf, #{hidden: 1, minwidth: 120, minheight: 70} )
+
+
+	" Add some options
+
+	call popup_setoptions( winid, #{title: ' ' . filename . ' '  ,
+				\		   border     : [1,1,1,1],
+				\		   padding    : [1,1,1,1],
+				\		   cursorline : 0}
+				\ )
+
+
+	" Show the popup
 
 	call popup_show(winid)
+
 endfunction
 
