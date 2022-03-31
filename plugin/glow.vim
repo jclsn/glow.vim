@@ -7,7 +7,6 @@ command Glow call OpenGlow()
 
 function! OpenGlow()
 
-
 	let glowFound = system('which glow')
 	if glowFound[5:13] == 'not found'
 		echohl WarningMsg
@@ -30,7 +29,6 @@ function! OpenGlow()
 		return
 	endif
 
-
 	" Open a hidden terminal buffer an run glow in it
 
 	let buf = term_start( ['glow', filepath], #{hidden: 1} )
@@ -38,7 +36,7 @@ function! OpenGlow()
 
 	" Create a popup to display the terminal buffer in
 
-	let winid = popup_create( buf, #{hidden: 1, minwidth: 120, minheight: 70} )
+	let winid = popup_create( buf, #{hidden: 1, minwidth: 120, minheight: 70, maxheight:70} )
 
 
 	" Add some options
