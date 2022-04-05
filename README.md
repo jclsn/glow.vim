@@ -7,6 +7,16 @@ A Vim plugin to print the Glow output to a popup.
 ## Dependencies
   - https://github.com/charmbracelet/glow
 
+## Installation
+
+Add ``jclsn/glow.vim`` to your favorite plugin manager e.g. for vim-plug add 
+
+```
+Plug 'jclsn/glow.vim'
+```
+
+to your .vimrc.
+
 ## Usage
 
 Type ``:Glow`` to render the current file and exit with ``:q``
