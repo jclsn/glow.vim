@@ -10,7 +10,7 @@ function! OpenGlow()
 	let glowFound = system('which glow')
 	if glowFound[5:13] == 'not found'
 		echohl WarningMsg
-		echo 'glow is not installed'
+		echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
 		echohl None
 		return
 	endif
