@@ -31,12 +31,12 @@ function! OpenGlow()
 
 	" Open a hidden terminal buffer an run glow in it
 
-	let buf = term_start( ['glow', filepath], #{hidden: 1} )
+	let buf = term_start( ['glow', filepath], #{hidden: 1}  )
 
 
 	" Create a popup to display the terminal buffer in
 
-	let winid = popup_create( buf, #{hidden: 1, minwidth: 120, minheight: 70, maxheight:70} )
+	let winid = popup_create( buf, #{hidden: 0, minwidth: float2nr(floor(&columns * 0.5)), maxwidth: float2nr(floor(&columns * 0.8)), minheight: float2nr(floor(&lines * 0.8)), maxheight: float2nr(floor(&lines * 0.8))} )
 
 
 	" Add some options
@@ -47,10 +47,9 @@ function! OpenGlow()
 				\		   cursorline : 0}
 				\ )
 
-
 	" Show the popup
 
-	call popup_show(winid)
+    call cursor(1,1)
 
 endfunction
 
