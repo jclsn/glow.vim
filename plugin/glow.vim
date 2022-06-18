@@ -46,43 +46,42 @@ function! OpenGlow()
                 \                               term_rows: &lines,
                 \ })
 
-    "execute ( bufwinnr(buf) . "wincmd w" )
-    "
+    " Close the terminal window
 
     let buffer_window = bufwinnr(buf)
     exe 'norm ' . buffer_window . "\<C-w>c"
 
     " Create a popup to display the terminal buffer in
 
-
         if winid != 0
             popup_close(winid)
         else
+
             let winid = popup_create( buf, #{hidden: 0,
                         \                    close: "button",
                         \                    minwidth: float2nr(floor(&columns * 0.5)),
                         \                    maxwidth: float2nr(floor(&columns * 0.8)),
                         \                    minheight: float2nr(floor(&lines * 0.8)),
-                        \                    maxheight: float2nr(floor(&lines * 0.8))}
+                        \                    maxheight: float2nr(floor(&lines * 0.8))},
                         \  )
 
-            " Add some options
+            let popup_window = bufwinnr(winid)
 
+            " Add some options
+            "
             call popup_setoptions( winid, #{title: ' ' . filename . ' '  ,
                         \		   border     : [1,1,1,1],
                         \		   padding    : [1,1,1,1],
-                        \		   firstline : 1,
                         \ })
 
-            "     " Show the popup
-            "
-
-
-        endif
+            " Set the cursor position to 1. Needs to be set after the popup
+            " has finished rendering somehow
 
             call cursor(1,1)
-    return
+        endif
 
-endfunction
+        return
+
+    endfunction
 
 
