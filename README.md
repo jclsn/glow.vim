@@ -20,4 +20,5 @@ to your .vimrc.
 
 ## Usage
 
-Type `:Glow` to render the current file and exit with `:q`
+Type `:Glow` to render the current file in a popup
+Type `:Glowsplit` to render the current file in a split

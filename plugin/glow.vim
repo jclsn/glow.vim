@@ -4,6 +4,7 @@
 " Description   :
 
 command Glow call OpenGlow()
+command Glowsplit call OpenGlowSplit()
 
 function! OpenGlow()
 
@@ -85,3 +86,46 @@ function! OpenGlow()
     endfunction
 
 
+function! OpenGlowSplit()
+
+    let glowFound = system('which glow')
+    if glowFound[5:13] == 'not found'
+        echohl WarningMsg
+        echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
+        echohl None
+        return
+    endif
+
+    let filepath = @%				" Get the file path
+    let filename = expand('%:t')    " Get the file name
+    let extension = expand('%:e')	" Get the file extension
+    let winid = 0
+    let buf = 0
+
+    " Display a warning message if the current file is not of type markdown
+
+    let allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
+
+    for ft in $allowed_filetypes
+        if extension != $ft
+            echohl WarningMsg
+            echo 'Glow only supports markdown files'
+            echohl None
+            return
+        endif
+    endfor
+
+
+    " Open a hidden terminal buffer an run glow in it
+
+    if buf != 0
+        call win_execute(buf, 'close')
+    endif
+
+    let buf = term_start( ['glow', filepath], #{hidden: 0,
+                \                               vertical: 1,
+                \                               term_rows: &lines,
+                \ })
+
+    call cursor(1,1)
+endfunction
