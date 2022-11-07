@@ -1,83 +1,101 @@
 vim9script
 
 def ErrorMsg(msg: string)
-    echohl ErrorMsg | echomsg msg | echohl None
+	echohl ErrorMsg | echomsg msg | echohl None
 enddef
 
-def PlaceCursor(job_status: job, exit_status: number)
-	sleep 100m
-	cursor(1, 1)
+def CheckFiletypes(): bool
+
+	var extension = expand('%:e')	# Get the file extension
+	var allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
+
+	var ft_found = false
+	for ft in allowed_filetypes
+		if extension == ft
+			ft_found = true
+			break
+		endif
+	endfor
+
+	if ft_found == false
+		echohl WarningMsg
+		echo 'Glow only supports markdown files'
+		echohl None
+		return false
+	endif
+
+	return true
 enddef
 
 def OpenGlow(path: string)
 
-    if !executable('glow')
-        ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
-        return
-    endif
+	if !executable('glow')
+		ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
+		return
+	endif
 
-    const file: string = path ?? expand('%')
+	if !CheckFiletypes()
+		return
+	endif
 
-    if !file->fnamemodify(':p')->filereadable()
-        ErrorMsg($'File not readable: {file}')
-        return
-    endif
+	const file: string = path ?? expand('%')
 
-    const ptybuf: number = term_start(['glow', file], {
-        norestore: true,
-        term_name: $'glow {file}',
-        hidden: true,
-        term_cols: 1000,
-        term_highlight: 'Pmenu',
-		exit_cb: PlaceCursor,
-    })
+	if !file->fnamemodify(':p')->filereadable()
+		ErrorMsg($'File not readable: {file}')
+		return
+	endif
 
-    setbufvar(ptybuf, '&bufhidden', 'delete')
+	var ptybuf: number
 
-    const popup_id: number = popup_create(ptybuf, {
-        title: $' glow {file} ',
+	ptybuf = term_start(['glow', file], {
+		norestore: true,
+		term_name: $'glow {file}',
 		hidden: true,
-        border: [],
-        padding: [0, 1, 0, 1],
-        minwidth: floor(&columns * 0.5)->float2nr(),
-        maxwidth: floor(&columns * 0.8)->float2nr(),
-        minheight: floor(&lines * 0.8)->float2nr(),
-        maxheight: floor(&lines * 0.8)->float2nr(),
-    })
+		term_highlight: 'Pmenu',
+		exit_cb: (_, _) => popup_create(ptybuf, {
+			title: $' glow {file} ',
+			hidden: false,
+			border: [],
+			padding: [0, 1, 0, 1],
+			minwidth: floor(&columns * 0.5)->float2nr(),
+			maxwidth: floor(&columns * 0.8)->float2nr(),
+			minheight: floor(&lines * 0.8)->float2nr(),
+			maxheight: floor(&lines * 0.8)->float2nr(),
+			})
+		})
 
-
-	# Wait until the PlaceCursor function is finished here. But how?
-	#
-	popup_show(popup_id)
-
+	setbufvar(ptybuf, '&bufhidden', 'delete')
 enddef
 
 def OpenGlowSplit(mods: string, path: string)
-    if !executable('glow')
-        ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
-        return
-    endif
+	if !executable('glow')
+		ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
+		return
+	endif
 
-    const file: string = path ?? expand('%')
+	if !CheckFiletypes(path)
+		return
+	endif
 
-    if !file->fnamemodify(':p')->filereadable()
-        ErrorMsg($'File not readable: {file}')
-        return
-    endif
+	const file: string = path ?? expand('%')
 
-    # https://github.com/vim/vim/issues/8822#issuecomment-908670168
-    const ptybuf: number = term_start(['glow', file], {
-        norestore: true,
-        term_name: $'glow {file}',
-        hidden: true,
-        term_cols: 1000,
-        term_finish: 'open',
-        term_opencmd: $'{mods} sbuffer %d'
-    })
+	if !file->fnamemodify(':p')->filereadable()
+		ErrorMsg($'File not readable: {file}')
+		return
+	endif
 
-    setbufvar(ptybuf, '&bufhidden', 'wipe')
+	const ptybuf: number = term_start(['glow', file], {
+		norestore: true,
+		term_name: $'glow {file}',
+		hidden: true,
+		term_cols: 1000,
+		term_finish: 'open',
+		term_opencmd: $'{mods} sbuffer %d'
+		})
+
+	setbufvar(ptybuf, '&bufhidden', 'wipe')
 enddef
 
 command -nargs=? -complete=file Glow OpenGlow(<q-args>)
-command -nargs=? -complete=file GlowSplit OpenGlowSplit(<q-mods>, <q-args>)
+command -nargs=? -complete=file Glowsplit OpenGlowSplit(<q-mods>, <q-args>)
 
