@@ -12,8 +12,9 @@ A Vim plugin to preview Markdown files by printing the output of Glow to a popup
 
 Add `jclsn/glow.vim` to your favorite plugin manager e.g. for [vim-plug](https://github.com/junegunn/vim-plug) add
 
-```
+``
 Plug 'jclsn/glow.vim'
+
 ```
 
 to your .vimrc.
@@ -22,3 +23,4 @@ to your .vimrc.
 
 Type `:Glow` to render the current file in a popup
 Type `:Glowsplit` to render the current file in a split
+```

@@ -4,7 +4,13 @@ def ErrorMsg(msg: string)
     echohl ErrorMsg | echomsg msg | echohl None
 enddef
 
+def PlaceCursor(job_status: job, exit_status: number)
+	sleep 100m
+	cursor(1, 1)
+enddef
+
 def OpenGlow(path: string)
+
     if !executable('glow')
         ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
         return
@@ -23,12 +29,14 @@ def OpenGlow(path: string)
         hidden: true,
         term_cols: 1000,
         term_highlight: 'Pmenu',
+		exit_cb: PlaceCursor,
     })
 
-    setbufvar(ptybuf, '&bufhidden', 'wipe')
+    setbufvar(ptybuf, '&bufhidden', 'delete')
 
-    popup_create(ptybuf, {
+    const popup_id: number = popup_create(ptybuf, {
         title: $' glow {file} ',
+		hidden: true,
         border: [],
         padding: [0, 1, 0, 1],
         minwidth: floor(&columns * 0.5)->float2nr(),
@@ -36,6 +44,11 @@ def OpenGlow(path: string)
         minheight: floor(&lines * 0.8)->float2nr(),
         maxheight: floor(&lines * 0.8)->float2nr(),
     })
+
+
+	# Wait until the PlaceCursor function is finished here. But how?
+	#
+	popup_show(popup_id)
 
 enddef
 
