@@ -38,7 +38,7 @@ function! OpenGlow()
 
     " Open a hidden terminal buffer an run glow in it
 
-    if buf != 0
+    if buf
         call win_execute(buf, 'close')
     endif
 
