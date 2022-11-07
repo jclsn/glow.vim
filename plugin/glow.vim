@@ -42,7 +42,7 @@ function! OpenGlow()
         call win_execute(buf, 'close')
     endif
 
-    let buf = term_start( ['glow', filepath], #{hidden: 0,
+    let buf = term_start( ['glow', filepath], #{hidden: 1,
                 \                               vertical: 1,
                 \                               term_rows: &lines,
                 \ })
