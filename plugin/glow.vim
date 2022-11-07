@@ -8,124 +8,119 @@ command Glowsplit call OpenGlowSplit()
 
 function! OpenGlow()
 
-    let glowFound = system('which glow')
-    if glowFound[5:13] == 'not found'
-        echohl WarningMsg
-        echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
-        echohl None
-        return
-    endif
+	let glowFound = executable('glow')
+	if glowFound[5:13] == 'not found'
+		echohl WarningMsg
+		echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
+		echohl None
+		return
+	endif
 
-    let filepath = @%				" Get the file path
-    let filename = expand('%:t')    " Get the file name
-    let extension = expand('%:e')	" Get the file extension
-    let winid = 0
-    let buf = 0
+	let filepath = @%				" Get the file path
+	let filename = expand('%:t')    " Get the file name
+	let extension = expand('%:e')	" Get the file extension
+	let popup_id = 0
+	let buf = 0
 
-    " Display a warning message if the current file is not of type markdown
+	" Display a warning message if the current file is not of type markdown
 
-    let allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
+	let allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
 
-    for ft in $allowed_filetypes
-        if extension != $ft
-            echohl WarningMsg
-            echo 'Glow only supports markdown files'
-            echohl None
-            return
-        endif
-    endfor
+	let ft_found = 0
+	for ft in allowed_filetypes
+		if extension == ft
+			let ft_found = 1
+			break
+		endif
+	endfor
+
+	if ft_found == 0
+		echohl WarningMsg
+		echo 'Glow only supports markdown files'
+		echohl None
+		return
+	endif
 
 
-    " Open a hidden terminal buffer an run glow in it
+	" Open a hidden terminal buffer an run glow in it
 
-    if buf
-        call win_execute(buf, 'close')
-    endif
+	let buf = term_start( ['glow', filepath], #{hidden: 1,
+				\                               vertical: 1,
+				\                               term_rows: &lines,
+				\ })
 
-    let buf = term_start( ['glow', filepath], #{hidden: 1,
-                \                               vertical: 1,
-                \                               term_rows: &lines,
-                \ })
+	" Create a popup to display the terminal buffer in
 
-    " Close the terminal window
+	if popup_id != 0
+		popup_close(popup_id)
+	else
 
-    let buffer_window = bufwinnr(buf)
-    exe 'norm ' . buffer_window . "\<C-w>c"
+		let popup_id = popup_create( buf, #{hidden: 0,
+					\                    close: "button",
+					\                    minwidth: float2nr(floor(&columns * 0.5)),
+					\                    maxwidth: float2nr(floor(&columns * 0.8)),
+					\                    minheight: float2nr(floor(&lines * 0.8)),
+					\                    maxheight: float2nr(floor(&lines * 0.8))},
+					\  )
 
-    " Create a popup to display the terminal buffer in
+		let popup_window = bufwinnr(popup_id)
 
-        if winid != 0
-            popup_close(winid)
-        else
+		" Add some options
+		"
+		call popup_setoptions( popup_id, #{title: ' ' . filename . ' '  ,
+					\		   border     : [1,1,1,1],
+					\		   padding    : [1,1,1,1],
+					\ })
 
-            let winid = popup_create( buf, #{hidden: 0,
-                        \                    close: "button",
-                        \                    minwidth: float2nr(floor(&columns * 0.5)),
-                        \                    maxwidth: float2nr(floor(&columns * 0.8)),
-                        \                    minheight: float2nr(floor(&lines * 0.8)),
-                        \                    maxheight: float2nr(floor(&lines * 0.8))},
-                        \  )
+		" Set the cursor position to 1. Needs to be set after the popup
+		" has finished rendering somehow
 
-            let popup_window = bufwinnr(winid)
+	endif
 
-            " Add some options
-            "
-            call popup_setoptions( winid, #{title: ' ' . filename . ' '  ,
-                        \		   border     : [1,1,1,1],
-                        \		   padding    : [1,1,1,1],
-                        \ })
+	call win_execute(popup_id, "call cursor(1, 1)")
 
-            " Set the cursor position to 1. Needs to be set after the popup
-            " has finished rendering somehow
+	return
 
-            call cursor(1,1)
-        endif
-
-        return
-
-    endfunction
+endfunction
 
 
 function! OpenGlowSplit()
 
-    let glowFound = system('which glow')
-    if glowFound[5:13] == 'not found'
-        echohl WarningMsg
-        echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
-        echohl None
-        return
-    endif
+	let glowFound = system('which glow')
+	if glowFound[5:13] == 'not found'
+		echohl WarningMsg
+		echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
+		echohl None
+		return
+	endif
 
-    let filepath = @%				" Get the file path
-    let filename = expand('%:t')    " Get the file name
-    let extension = expand('%:e')	" Get the file extension
-    let winid = 0
-    let buf = 0
+	let filepath = @%				" Get the file path
+	let filename = expand('%:t')    " Get the file name
+	let extension = expand('%:e')	" Get the file extension
+	let buf = 0
 
-    " Display a warning message if the current file is not of type markdown
+	" Display a warning message if the current file is not of type markdown
 
-    let allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
+	let allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
 
-    for ft in $allowed_filetypes
-        if extension != $ft
-            echohl WarningMsg
-            echo 'Glow only supports markdown files'
-            echohl None
-            return
-        endif
-    endfor
+	for ft in $allowed_filetypes
+		if extension != $ft
+			echohl WarningMsg
+			echo 'Glow only supports markdown files'
+			echohl None
+			return
+		endif
+	endfor
 
 
-    " Open a hidden terminal buffer an run glow in it
+	" Open a hidden terminal buffer an run glow in it
 
-    if buf != 0
-        call win_execute(buf, 'close')
-    endif
+	if bufexists(bufnr)
+	endif
 
-    let buf = term_start( ['glow', filepath], #{hidden: 0,
-                \                               vertical: 1,
-                \                               term_rows: &lines,
-                \ })
+	let bufnr = term_start( ['glow', filepath], #{hidden: 0,
+				\                               vertical: 1,
+				\                               term_rows: &lines,
+				\ })
 
-    call cursor(1,1)
 endfunction
