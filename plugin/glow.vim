@@ -1,126 +1,70 @@
-" Author        : Jan Claussen
-" Created       : 09/03/2022
-" License       : MIT
-" Description   :
+vim9script
 
-command Glow call OpenGlow()
-command Glowsplit call OpenGlowSplit()
+def ErrorMsg(msg: string)
+    echohl ErrorMsg | echomsg msg | echohl None
+enddef
 
-function! OpenGlow()
+def OpenGlow(path: string)
+    if !executable('glow')
+        ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
+        return
+    endif
 
-	let glowFound = executable('glow')
-	if glowFound[5:13] == 'not found'
-		echohl WarningMsg
-		echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
-		echohl None
-		return
-	endif
+    const file: string = path ?? expand('%')
 
-	let filepath = @%				" Get the file path
-	let filename = expand('%:t')    " Get the file name
-	let extension = expand('%:e')	" Get the file extension
-	let popup_id = 0
-	let buf = 0
+    if !file->fnamemodify(':p')->filereadable()
+        ErrorMsg($'File not readable: {file}')
+        return
+    endif
 
-	" Display a warning message if the current file is not of type markdown
+    const ptybuf: number = term_start(['glow', file], {
+        norestore: true,
+        term_name: $'glow {file}',
+        hidden: true,
+        term_cols: 1000,
+        term_highlight: 'Pmenu',
+    })
 
-	let allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
+    setbufvar(ptybuf, '&bufhidden', 'wipe')
 
-	let ft_found = 0
-	for ft in allowed_filetypes
-		if extension == ft
-			let ft_found = 1
-			break
-		endif
-	endfor
+    popup_create(ptybuf, {
+        title: $' glow {file} ',
+        border: [],
+        padding: [0, 1, 0, 1],
+        minwidth: floor(&columns * 0.5)->float2nr(),
+        maxwidth: floor(&columns * 0.8)->float2nr(),
+        minheight: floor(&lines * 0.8)->float2nr(),
+        maxheight: floor(&lines * 0.8)->float2nr(),
+    })
 
-	if ft_found == 0
-		echohl WarningMsg
-		echo 'Glow only supports markdown files'
-		echohl None
-		return
-	endif
+enddef
 
+def OpenGlowSplit(mods: string, path: string)
+    if !executable('glow')
+        ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
+        return
+    endif
 
-	" Open a hidden terminal buffer an run glow in it
+    const file: string = path ?? expand('%')
 
-	let buf = term_start( ['glow', filepath], #{hidden: 1,
-				\                               vertical: 1,
-				\                               term_rows: &lines,
-				\ })
+    if !file->fnamemodify(':p')->filereadable()
+        ErrorMsg($'File not readable: {file}')
+        return
+    endif
 
-	" Create a popup to display the terminal buffer in
+    # https://github.com/vim/vim/issues/8822#issuecomment-908670168
+    const ptybuf: number = term_start(['glow', file], {
+        norestore: true,
+        term_name: $'glow {file}',
+        hidden: true,
+        term_cols: 1000,
+        term_finish: 'open',
+        term_opencmd: $'{mods} sbuffer %d'
+    })
 
-	if popup_id != 0
-		popup_close(popup_id)
-	else
+    setbufvar(ptybuf, '&bufhidden', 'wipe')
+enddef
 
-		let popup_id = popup_create( buf, #{hidden: 0,
-					\                    close: "button",
-					\                    minwidth: float2nr(floor(&columns * 0.5)),
-					\                    maxwidth: float2nr(floor(&columns * 0.8)),
-					\                    minheight: float2nr(floor(&lines * 0.8)),
-					\                    maxheight: float2nr(floor(&lines * 0.8))},
-					\  )
+command -nargs=? -complete=file Glow OpenGlow(<q-args>)
+command -nargs=? -complete=file GlowSplit OpenGlowSplit(<q-mods>, <q-args>)
 
-		let popup_window = bufwinnr(popup_id)
-
-		" Add some options
-		"
-		call popup_setoptions( popup_id, #{title: ' ' . filename . ' '  ,
-					\		   border     : [1,1,1,1],
-					\		   padding    : [1,1,1,1],
-					\ })
-
-		" Set the cursor position to 1. Needs to be set after the popup
-		" has finished rendering somehow
-
-	endif
-
-	call win_execute(popup_id, "call cursor(1, 1)")
-
-	return
-
-endfunction
-
-
-function! OpenGlowSplit()
-
-	let glowFound = system('which glow')
-	if glowFound[5:13] == 'not found'
-		echohl WarningMsg
-		echo 'glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!'
-		echohl None
-		return
-	endif
-
-	let filepath = @%				" Get the file path
-	let filename = expand('%:t')    " Get the file name
-	let extension = expand('%:e')	" Get the file extension
-	let buf = 0
-
-	" Display a warning message if the current file is not of type markdown
-
-	let allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
-
-	for ft in $allowed_filetypes
-		if extension != $ft
-			echohl WarningMsg
-			echo 'Glow only supports markdown files'
-			echohl None
-			return
-		endif
-	endfor
-
-
-	" Open a hidden terminal buffer an run glow in it
-
-	if bufexists(bufnr)
-	endif
-
-	let bufnr = term_start( ['glow', filepath], #{hidden: 0,
-				\                               vertical: 1,
-				\                               term_rows: &lines,
-				\ })
-
-endfunction
