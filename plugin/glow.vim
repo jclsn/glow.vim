@@ -32,7 +32,67 @@ def CheckFiletypes(path: string): bool
 	return true
 enddef
 
-def OpenGlow(path: string)
+def OpenGlow(mods: string, path: string)
+	if !executable('glow')
+		ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
+		return
+	endif
+
+	if !CheckFiletypes(path)
+		return
+	endif
+
+	const file: string = path ?? expand('%')
+
+	if !file->fnamemodify(':p')->filereadable()
+		ErrorMsg($'File not readable: {file}')
+		return
+	endif
+
+	const ptybuf: number = term_start(['glow', file], {
+		norestore: true,
+		term_name: $'glow {file}',
+		hidden: true,
+		curwin: true,
+		term_cols: 1000,
+		term_finish: 'open',
+		term_opencmd: $'{mods} sbuffer %d'
+		})
+
+	setbufvar(ptybuf, '&bufhidden', 'wipe')
+enddef
+
+
+def OpenGlowSplit(mods: string, path: string)
+	if !executable('glow')
+		ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
+		return
+	endif
+
+	if !CheckFiletypes(path)
+		return
+	endif
+
+	const file: string = path ?? expand('%')
+
+	if !file->fnamemodify(':p')->filereadable()
+		ErrorMsg($'File not readable: {file}')
+		return
+	endif
+
+	const ptybuf: number = term_start(['glow', file], {
+		norestore: true,
+		term_name: $'glow {file}',
+		hidden: true,
+		term_cols: 1000,
+		term_finish: 'open',
+		term_opencmd: $'{mods} sbuffer %d'
+		})
+
+	setbufvar(ptybuf, '&bufhidden', 'wipe')
+enddef
+
+def OpenGlowPop(mods: string, path: string)
 
 	if !executable('glow')
 		ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
@@ -72,35 +132,8 @@ def OpenGlow(path: string)
 	setbufvar(ptybuf, '&bufhidden', 'delete')
 enddef
 
-def OpenGlowSplit(mods: string, path: string)
-	if !executable('glow')
-		ErrorMsg('glow is not installed. Please visit https://github.com/charmbracelet/glow and follow the instructions!')
-		return
-	endif
 
-	if !CheckFiletypes(path)
-		return
-	endif
-
-	const file: string = path ?? expand('%')
-
-	if !file->fnamemodify(':p')->filereadable()
-		ErrorMsg($'File not readable: {file}')
-		return
-	endif
-
-	const ptybuf: number = term_start(['glow', file], {
-		norestore: true,
-		term_name: $'glow {file}',
-		hidden: true,
-		term_cols: 1000,
-		term_finish: 'open',
-		term_opencmd: $'{mods} sbuffer %d'
-		})
-
-	setbufvar(ptybuf, '&bufhidden', 'wipe')
-enddef
-
-command -nargs=? -complete=file Glow OpenGlow(<q-args>)
+command -nargs=? -complete=file Glow OpenGlow(<q-mods>, <q-args>)
 command -nargs=? -complete=file Glowsplit OpenGlowSplit(<q-mods>, <q-args>)
+command -nargs=? -complete=file Glowpop OpenGlowPop(<q-mods>, <q-args>)
 
