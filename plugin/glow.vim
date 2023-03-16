@@ -4,9 +4,14 @@ def ErrorMsg(msg: string)
 	echohl ErrorMsg | echomsg msg | echohl None
 enddef
 
-def CheckFiletypes(): bool
-
+def CheckFiletypes(path: string): bool
+	
 	var extension = expand('%:e')	# Get the file extension
+	
+	if !empty(path) 
+		extension = fnamemodify(path, ':e')	# Get the file extension
+	endif 
+
 	var allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
 
 	var ft_found = false
@@ -34,7 +39,7 @@ def OpenGlow(path: string)
 		return
 	endif
 
-	if !CheckFiletypes()
+	if !CheckFiletypes(path)
 		return
 	endif
 
