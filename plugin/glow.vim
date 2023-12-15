@@ -121,6 +121,7 @@ def OpenGlowPop(mods: string, path: string)
 			title: $' glow {file} ',
 			hidden: false,
 			border: [],
+			borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
 			padding: [0, 1, 0, 1],
 			minwidth: floor(&columns * 0.5)->float2nr(),
 			maxwidth: floor(&columns * 0.8)->float2nr(),
