@@ -5,12 +5,12 @@ def ErrorMsg(msg: string)
 enddef
 
 def CheckFiletypes(path: string): bool
-	
+
 	var extension = expand('%:e')	# Get the file extension
-	
-	if !empty(path) 
+
+	if !empty(path)
 		extension = fnamemodify(path, ':e')	# Get the file extension
-	endif 
+	endif
 
 	var allowed_filetypes = ["md", "markdown", "mkd", "mkdn", "mdwn", "mdown", "mdtxt", "mdtext", "rmd"]
 
