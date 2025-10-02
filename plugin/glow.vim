@@ -49,6 +49,9 @@ def OpenGlow(mods: string, path: string)
 		return
 	endif
 
+	autocmd TerminalOpen * setlocal nolist
+	autocmd TerminalOpen * highlight ExtraWhitespace NONE
+
 	const ptybuf: number = term_start(['glow', file], {
 		norestore: true,
 		term_name: $'glow {file}',
@@ -80,6 +83,9 @@ def OpenGlowSplit(mods: string, path: string)
 		return
 	endif
 
+	autocmd TerminalOpen * setlocal nolist
+	autocmd TerminalOpen * highlight ExtraWhitespace NONE
+
 	const ptybuf: number = term_start(['glow', file], {
 		norestore: true,
 		term_name: $'glow {file}',
@@ -110,8 +116,10 @@ def OpenGlowPop(mods: string, path: string)
 		return
 	endif
 
-	var ptybuf: number
+	autocmd TerminalOpen * setlocal nolist
+	autocmd TerminalOpen * highlight ExtraWhitespace NONE
 
+	var ptybuf: number
 	ptybuf = term_start(['glow', file], {
 		norestore: true,
 		term_name: $'glow {file}',
