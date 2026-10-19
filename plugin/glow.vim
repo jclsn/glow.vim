@@ -97,7 +97,7 @@ def OpenGlowSplit(mods: string, path: string)
 		hidden: true,
 		term_cols: 1000,
 		term_finish: 'open',
-		term_opencmd: $'{mods} sbuffer %d | normal! gg'
+		term_opencmd: $'vertical {mods} sbuffer %d | normal! gg'
 		})
 
 	setbufvar(ptybuf, '&bufhidden', 'wipe')
