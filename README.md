@@ -2,7 +2,7 @@
 
 A Vim plugin to preview Markdown files by printing the output of Glow to a terminal buffer or popup.
 
-<img width="2481" height="1317" alt="glow" src="https://github.com/user-attachments/assets/3d74f35b-3a24-4762-a74e-c6d506d96780" />
+<img width="2480" height="1334" alt="glow" src="https://github.com/user-attachments/assets/7ce27e64-48d7-4031-b2de-db351e6ad4fa" />
 
 ## Dependencies
 
