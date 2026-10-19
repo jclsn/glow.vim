@@ -108,7 +108,9 @@ def ShowPopup(buf: number, file: string)
 		title: $' glow {file} ',
 		hidden: false,
 		border: [],
-		borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+		borderchars: ['─', '│', '─', '│', '╭', '╮', '╯', '╰'],
+		highlight: 'Normal',
+		scrollbarhighlight: 'Normal',
 		padding: [0, 1, 0, 1],
 		minwidth: floor(&columns * 0.5)->float2nr(),
 		maxwidth: floor(&columns * 0.8)->float2nr(),
@@ -144,7 +146,7 @@ def OpenGlowPop(mods: string, path: string)
 		norestore: true,
 		term_name: $'glow {file}',
 		hidden: true,
-		term_highlight: 'Pmenu',
+		term_highlight: 'Normal',
 		close_cb: (_) => AfterGlow(() => ShowPopup(ptybuf, file))
 		})
 
