@@ -2,7 +2,7 @@
 
 A Vim plugin to preview Markdown files by printing the output of Glow to a terminal buffer or popup.
 
-![grafik](https://user-images.githubusercontent.com/19779511/161688000-cd4465b0-d16c-4d42-8cbe-6e5f8ca6a9ba.png)
+<img width="2481" height="1317" alt="glow" src="https://github.com/user-attachments/assets/3d74f35b-3a24-4762-a74e-c6d506d96780" />
 
 ## Dependencies
 
@@ -12,15 +12,16 @@ A Vim plugin to preview Markdown files by printing the output of Glow to a termi
 
 Add `jclsn/glow.vim` to your favorite plugin manager e.g. for [vim-plug](https://github.com/junegunn/vim-plug) add
 
-```
+```vim
 Plug 'jclsn/glow.vim'
-
 ```
 
 to your .vimrc.
 
-## Usage
+## Commands
 
-Type `:Glow` to render the current in the current window
-Type `:Glowsplit` to render the current file in a split
-Type `:Glowpop` to render the current file in a popup
+| Command | Description |
+| --- | --- |
+| `:Glow` | Render the current in the current buffer |
+| `:Glowsplit` | Render the current file in a split |
+| `:Glowpop` | Render the current file in a popup |
