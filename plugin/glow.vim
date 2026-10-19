@@ -4,6 +4,12 @@ def ErrorMsg(msg: string)
 	echohl ErrorMsg | echomsg msg | echohl None
 enddef
 
+# Run Func once glow's output is completely in the terminal buffer. Vim copies
+# the last screen into the buffer only after close_cb, hence the timer.
+def AfterGlow(Func: func)
+	timer_start(0, (_) => Func())
+enddef
+
 def CheckFiletypes(path: string): bool
 
 	var extension = expand('%:e')	# Get the file extension
@@ -56,10 +62,9 @@ def OpenGlow(mods: string, path: string)
 		norestore: true,
 		term_name: $'glow {file}',
 		hidden: true,
-		curwin: true,
 		term_cols: 1000,
 		term_finish: 'open',
-		term_opencmd: $'{mods} sbuffer %d'
+		term_opencmd: $'{mods} buffer %d | normal! gg'
 		})
 
 	setbufvar(ptybuf, '&bufhidden', 'wipe')
@@ -92,10 +97,25 @@ def OpenGlowSplit(mods: string, path: string)
 		hidden: true,
 		term_cols: 1000,
 		term_finish: 'open',
-		term_opencmd: $'{mods} sbuffer %d'
+		term_opencmd: $'{mods} sbuffer %d | normal! gg'
 		})
 
 	setbufvar(ptybuf, '&bufhidden', 'wipe')
+enddef
+
+def ShowPopup(buf: number, file: string)
+	const winid: number = popup_create(buf, {
+		title: $' glow {file} ',
+		hidden: false,
+		border: [],
+		borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+		padding: [0, 1, 0, 1],
+		minwidth: floor(&columns * 0.5)->float2nr(),
+		maxwidth: floor(&columns * 0.8)->float2nr(),
+		minheight: floor(&lines * 0.8)->float2nr(),
+		maxheight: floor(&lines * 0.8)->float2nr(),
+		})
+	win_execute(winid, 'normal! gg')
 enddef
 
 def OpenGlowPop(mods: string, path: string)
@@ -125,17 +145,7 @@ def OpenGlowPop(mods: string, path: string)
 		term_name: $'glow {file}',
 		hidden: true,
 		term_highlight: 'Pmenu',
-		exit_cb: (_, _) => popup_create(ptybuf, {
-			title: $' glow {file} ',
-			hidden: false,
-			border: [],
-			borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
-			padding: [0, 1, 0, 1],
-			minwidth: floor(&columns * 0.5)->float2nr(),
-			maxwidth: floor(&columns * 0.8)->float2nr(),
-			minheight: floor(&lines * 0.8)->float2nr(),
-			maxheight: floor(&lines * 0.8)->float2nr(),
-			})
+		close_cb: (_) => AfterGlow(() => ShowPopup(ptybuf, file))
 		})
 
 	setbufvar(ptybuf, '&bufhidden', 'delete')
