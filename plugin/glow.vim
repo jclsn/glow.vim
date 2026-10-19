@@ -10,6 +10,20 @@ def AfterGlow(Func: func)
 	timer_start(0, (_) => Func())
 enddef
 
+# Emulate a keyparess with feedkeys() to close the channel
+def PollJob(buf: number)
+	const job = term_getjob(buf)
+	timer_start(10, (timer) => {
+		if job_status(job) == 'run'
+			return
+		endif
+		feedkeys("\<Ignore>", 't')
+		if ch_status(job) == 'closed'
+			timer_stop(timer)
+		endif
+	}, {repeat: -1})
+enddef
+
 def CheckFiletypes(path: string): bool
 
 	var extension = expand('%:e')	# Get the file extension
@@ -67,6 +81,7 @@ def OpenGlow(mods: string, path: string)
 		term_opencmd: $'{mods} buffer %d | normal! gg'
 		})
 
+	PollJob(ptybuf)
 	setbufvar(ptybuf, '&bufhidden', 'wipe')
 enddef
 
@@ -100,6 +115,7 @@ def OpenGlowSplit(mods: string, path: string)
 		term_opencmd: $'vertical {mods} sbuffer %d | normal! gg'
 		})
 
+	PollJob(ptybuf)
 	setbufvar(ptybuf, '&bufhidden', 'wipe')
 enddef
 
@@ -150,6 +166,7 @@ def OpenGlowPop(mods: string, path: string)
 		close_cb: (_) => AfterGlow(() => ShowPopup(ptybuf, file))
 		})
 
+	PollJob(ptybuf)
 	setbufvar(ptybuf, '&bufhidden', 'delete')
 enddef
 
